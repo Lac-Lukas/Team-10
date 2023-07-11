@@ -5,7 +5,8 @@ class Game:
     def __init__(self):
         
         pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH,HEIGHT))
+        self.screen = pygame.display.set_mode((WIDTH,HEIGHT)) #creates display surface and a clock
+        pygame.display.set_caption('RPG')
         self.clock = pygame.time.Clock()
 
     def run(self):
@@ -19,6 +20,6 @@ class Game:
             pygame.display.update()
             self.clock.tick(FPS)
 
-if __name__ == '__main__':
+if __name__ == '__main__': #checks if its the mainfile then creates an instance of the game and runs it
     game = Game()
     game.run()
