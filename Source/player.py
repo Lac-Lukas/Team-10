@@ -11,14 +11,27 @@ class Player(pygame.sprite.Sprite):
 		self.image = pygame.transform.scale(self.image, (64,80))
 
 		self.rect = self.image.get_rect(topleft = pos)
-		self.hitbox = self.rect.inflate(0,-30) #changes sprite's hitbox to allow sprites to overlap a bit
+		self.hitbox = self.rect.inflate(-30,-50) #changes sprite's hitbox to allow sprites to overlap a bit
 
+		#Player movement variables
 		self.pos_offset = [0, 0]
 		self.speed = 7
 		self.obstacles = obstacles
 
+		#Player animation variables
+		self.direction = "right"
+		self.counter = 0
+		self.animation_cooldown = 60
+		self.time_of_last_animation_frame = pygame.time.get_ticks()
+
+	def update(self):
+		self.get_mvmt()
+		self.check_collision()
+		self.animate()
+		self.move_player()
+
 	def get_mvmt(self):
-		self.hitbox = self.rect.inflate(0,-30)
+		self.hitbox = self.rect.inflate(-30,-50)
 		#if no movement key is pressed, there should be no offset
 		self.pos_offset = [0, 0]
 		keys = pygame.key.get_pressed()
@@ -26,8 +39,10 @@ class Player(pygame.sprite.Sprite):
 		#check for horizontal movement
 		if keys[pygame.K_LEFT] or keys[pygame.K_a]:
 			self.pos_offset[0] = -1
+			self.direction = "left"
 		if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
 			self.pos_offset[0] += 1
+			self.direction = "right"
 		#check for vertical movement
 		if keys[pygame.K_UP] or keys[pygame.K_w]:
 			self.pos_offset[1] = -1
@@ -56,7 +71,21 @@ class Player(pygame.sprite.Sprite):
 		self.rect[0] += round(self.pos_offset[0] * self.speed)
 		self.rect[1] += round(self.pos_offset[1] * self.speed)
 
-	def update(self):
-		self.get_mvmt()
-		self.check_collision()
-		self.move_player()
+	def animate(self):
+		current_time = pygame.time.get_ticks()
+		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown:
+			#character is moving left/right
+			if self.pos_offset[0] or self.pos_offset[1]:
+				self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/NoOutline/PNGSheets/running/' + self.direction + '_' + str(self.counter) + '.png'), 2)
+			#character is idle
+			else:
+				self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/idle/' + self.direction + '_' + str(self.counter) + '.png'), 2)
+				
+			if self.counter == 9:
+					self.counter = 0
+			else:
+				self.counter += 1
+
+			#update time of last time animation frame was played
+			self.time_of_last_animation_frame = current_time
+		
