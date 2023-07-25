@@ -20,9 +20,16 @@ class Player(pygame.sprite.Sprite):
 
 		#Player animation variables
 		self.direction = "right"
-		self.counter = 0
+		self.counter = 0	#counter will count up to 9
 		self.animation_cooldown = 60
 		self.time_of_last_animation_frame = pygame.time.get_ticks()
+
+		#Player attack variables
+		self.attack_cooldown = 400
+		self.attack_time = 0
+		self.attacking = False
+		self.attack_direction = "right"
+
 
 	def update(self):
 		self.get_mvmt()
@@ -32,6 +39,7 @@ class Player(pygame.sprite.Sprite):
 
 	def get_mvmt(self):
 		self.hitbox = self.rect.inflate(-30,-50)
+
 		#if no movement key is pressed, there should be no offset
 		self.pos_offset = [0, 0]
 		keys = pygame.key.get_pressed()
@@ -48,6 +56,14 @@ class Player(pygame.sprite.Sprite):
 			self.pos_offset[1] = -1
 		if keys[pygame.K_DOWN] or keys[pygame.K_s]:
 			self.pos_offset[1] += 1
+		#check if player is attacking
+		if keys[pygame.K_SPACE]:
+			current_time = pygame.time.get_ticks()
+			if not self.attacking and (current_time - self.attack_time > self.attack_cooldown):
+				self.counter = 0
+				self.attack_time = current_time
+				self.attack_direction = self.direction
+				self.attacking = True
 
 	def check_collision(self):
 		test_player = Rect(self.hitbox[:])	#makes shallow copy
@@ -74,17 +90,29 @@ class Player(pygame.sprite.Sprite):
 	def animate(self):
 		current_time = pygame.time.get_ticks()
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown:
-			#character is moving left/right
-			if self.pos_offset[0] or self.pos_offset[1]:
-				self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/NoOutline/PNGSheets/running/' + self.direction + '_' + str(self.counter) + '.png'), 2)
-			#character is idle
+			if self.attacking:
+				self.attack()
+
 			else:
-				self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/idle/' + self.direction + '_' + str(self.counter) + '.png'), 2)
-				
-			if self.counter == 9:
-					self.counter = 0
-			else:
-				self.counter += 1
+				#character is moving left/right
+				if self.pos_offset[0] or self.pos_offset[1]:
+					self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/NoOutline/PNGSheets/running/' + self.direction + '_' + str(self.counter) + '.png'), 2)
+				#character is idle
+				else:
+					self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/idle/' + self.direction + '_' + str(self.counter) + '.png'), 2)
+					
+				if self.counter == 9:
+						self.counter = 0
+				else:
+					self.counter += 1
 
 			#update time of last time animation frame was played
 			self.time_of_last_animation_frame = current_time
+	
+	def attack(self):
+		self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/attack/' + self.attack_direction + '_' + str(self.counter) + '.png'), 2)
+		self.counter += 1
+		
+		if self.counter == 3:
+			self.attacking = False
+			self.counter = 0
