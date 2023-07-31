@@ -27,3 +27,17 @@ WORLD_MAP = [
 
 
 ]
+
+# general colors
+WATER_COLOR = '#71ddee'
+UI_BG_COLOR = '#222222'
+BAR_BORDER_COLOR = '#111111'
+TEXT_COLOR = '#EEEEEE'
+
+# ui colors
+HEALTH_COLOR = 'red'
+ENERGY_COLOR = 'blue'
+UI_BORDER_COLOR_ACTIVE = 'gold'
+
+UI_FONT = '../graphics/fonts/comici.ttf'
+UI_FONT_SIZE = 18

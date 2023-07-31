@@ -28,7 +28,15 @@ class Player(pygame.sprite.Sprite):
 		self.attack_cooldown = 400
 		self.attack_time = 0
 		self.attacking = False
-		self.attack_direction = "right"
+		self.attack_direction = "right"\
+		
+		# main stats for player
+		self.maxStats = {'maxHealth': 100, 'maxEnergy':60, 'maxAttack': 10, 'maxMagic': 4, 'maxSpeed': 5}
+		self.currentHealth = 100
+		self.currentEnergy = 60
+		self.curentShield = 50
+		self.exp = 0
+		self.currentSpeed = 9001
 
 
 	def update(self):
