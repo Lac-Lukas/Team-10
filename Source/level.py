@@ -2,7 +2,9 @@ import pygame
 from settings import *
 from tile import Tile
 from player import Player
+from ui import UI
 from support import *
+
 class Level:
 	def __init__(self):
 
@@ -15,6 +17,9 @@ class Level:
 
 		# sprite setup
 		self.create_map()
+
+		# add a ui
+		self.ui = UI()
 
 	def create_map(self):
 		layouts = {
@@ -46,6 +51,7 @@ class Level:
 		# update and draw the game
 		self.visible_sprites.custom_draw(self.player)
 		self.visible_sprites.update()
+		self.ui.display(self.player)
 
 class YSortCameraGroup (pygame.sprite.Group):
 	def __init__(self):
