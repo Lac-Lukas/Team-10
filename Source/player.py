@@ -10,8 +10,8 @@ class Player(pygame.sprite.Sprite):
 		self.image = pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/idle/right_0.png')
 		self.image = pygame.transform.scale(self.image, (64,80))
 
-		self.rect = self.image.get_rect(center = pos)
-		self.hitbox = self.rect.inflate(-30,-50) #changes sprite's hitbox to allow sprites to overlap a bit
+		self.rect = self.image.get_rect(topleft = pos)
+		self.hitbox = self.rect.inflate(-30,-20) #changes sprite's hitbox to allow sprites to overlap a bit
 
 		#Player movement variables
 		self.pos_offset = [0, 0]
@@ -30,6 +30,14 @@ class Player(pygame.sprite.Sprite):
 		self.attacking = False
 		self.attack_direction = "right"
 		self.attack_dmg = 1
+		
+		# main stats for player
+		self.maxStats = {'maxHealth': 100, 'maxEnergy':60, 'maxAttack': 10, 'maxMagic': 4, 'maxSpeed': 5}
+		self.currentHealth = 100
+		self.currentEnergy = 60
+		self.curentShield = 50
+		self.exp = 0
+		self.currentSpeed = 9001
 
 		#combat variables
 		self.enemies = enemies
@@ -48,12 +56,12 @@ class Player(pygame.sprite.Sprite):
 		return self.health > 0
 
 	def get_mvmt(self):
-		self.hitbox = self.rect.inflate(-30,-50)
+		self.hitbox = self.rect.inflate(-30,-20)
 
 		#if no movement key is pressed, there should be no offset
 		self.pos_offset = [0, 0]
 		keys = pygame.key.get_pressed()
-
+		mouse_buttons = pygame.mouse.get_pressed() #checks for mouse input
 		#check for horizontal movement
 		if keys[pygame.K_LEFT] or keys[pygame.K_a]:
 			self.pos_offset[0] = -1
@@ -67,7 +75,7 @@ class Player(pygame.sprite.Sprite):
 		if keys[pygame.K_DOWN] or keys[pygame.K_s]:
 			self.pos_offset[1] += 1
 		#check if player is attacking
-		if keys[pygame.K_SPACE]:
+		if mouse_buttons[0]:
 			current_time = pygame.time.get_ticks()
 			if not self.attacking and (current_time - self.attack_time > self.attack_cooldown):
 				self.counter = 0
