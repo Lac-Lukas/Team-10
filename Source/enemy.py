@@ -12,10 +12,10 @@ class Enemy(pygame.sprite.Sprite):
 		self.hitbox = self.rect.inflate(0,-25)
 
 		#load animation frames
-		self.idle_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/idle/', 'right', 9)
-		self.running_r = self.load_frames('../graphics/Player/Color1/NoOutline/PNGSheets/running/', 'right', 9)
-		self.death_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/death/', 'right', 9)
-		self.attack_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/attack/', 'right', 3)
+		self.idle_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/idle/', 9)
+		self.running_r = self.load_frames('../graphics/Player/Color1/NoOutline/PNGSheets/running/', 9)
+		self.death_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/death/', 9)
+		self.attack_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/attack/', 3)
 
 		#movement variables
 		self.speed = 3
@@ -31,7 +31,7 @@ class Enemy(pygame.sprite.Sprite):
 
 		#combat variables
 		self.health = 3
-		self.attack_dmg = 1
+		self.attack_dmg = 20
 		self.aggro_dist = 300
 		self.attack_dist = 100
 		self.attacking = False
@@ -42,11 +42,8 @@ class Enemy(pygame.sprite.Sprite):
 		#indication when enemy can be deleted
 		self.has_death_animation_played = False
 
-	def load_frames(self, path, direction, nr):
-		frame_list = []
-		for x in range(nr + 1):
-			frame_list.append(pygame.transform.scale_by(pygame.image.load(path + direction + '_' + str(x) + '.png'), 2))
-		return frame_list
+	def load_frames(self, path, max_frame_num):
+		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num + 1)]
 
 	def update(self):
 		if self.player_obj.is_alive() and self.is_alive():
@@ -137,7 +134,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.image = pygame.transform.flip(self.attack_r[self.frame_counter], self.direction == 'left', False)
 		self.frame_counter += 1
 
-		if self.frame_counter == 2:
+		if self.frame_counter == 1:
 			self.attack()
 		
 		if self.frame_counter == 3:
@@ -155,7 +152,6 @@ class Enemy(pygame.sprite.Sprite):
 		current_time = pygame.time.get_ticks()
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.frame_counter < 10):
 			self.time_of_last_animation_frame = current_time
-
 			self.image = pygame.transform.flip(self.death_r[self.frame_counter], self.direction == 'left', False)
 		
 		if self.frame_counter > 9:

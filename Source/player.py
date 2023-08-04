@@ -47,13 +47,9 @@ class Player(pygame.sprite.Sprite):
 
 		#combat variables
 		self.enemies = enemies
-		self.health = 5
 	
-	def load_frames(self, path, nr_of_frames):
-		frame_list = []
-		for x in range(nr_of_frames + 1):
-			frame_list.append(pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2))
-		return frame_list
+	def load_frames(self, path, max_frame_num):
+		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num+1)]
 
 	def update(self):
 		if self.is_alive():
@@ -65,7 +61,7 @@ class Player(pygame.sprite.Sprite):
 			self.death()
 
 	def is_alive(self):
-		return self.health > 0
+		return self.currentHealth > 0
 
 	def get_mvmt(self):
 		self.hitbox = self.rect.inflate(-30,-20)
@@ -155,15 +151,12 @@ class Player(pygame.sprite.Sprite):
 		else:
 			hurtbox[0] -= 100
 
-		#pygame.draw.rect(pygame.display.get_surface(), 'red', hurtbox)
-
 		for enemy in self.enemies:
-				#pygame.draw.rect(pygame.display.get_surface(), 'white', enemy)
 				if pygame.Rect.colliderect(enemy.rect, hurtbox):
 					enemy.take_damage(self.attack_dmg)
 	
 	def take_damage(self, damage):
-		self.health -= damage
+		self.currentHealth -= damage
 
 		if not self.is_alive():
 			self.counter = 0
@@ -172,6 +165,5 @@ class Player(pygame.sprite.Sprite):
 		current_time = pygame.time.get_ticks()
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown:
 			self.time_of_last_animation_frame = current_time
-			self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/death/' + self.direction + '_' + str(self.counter) + '.png'), 2)
-			#self.image = pygame.transform.flip(self.death_r[self.counter], self.direction == 'left', False)
+			self.image = pygame.transform.flip(self.death_r[self.counter], self.direction == 'left', False)
 			self.counter += 1
