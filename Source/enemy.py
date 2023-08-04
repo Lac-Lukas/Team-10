@@ -13,13 +13,9 @@ class Enemy(pygame.sprite.Sprite):
 
 		#load animation frames
 		self.idle_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/idle/', 'right', 9)
-		self.idle_l = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/idle/', 'left', 9)
 		self.running_r = self.load_frames('../graphics/Player/Color1/NoOutline/PNGSheets/running/', 'right', 9)
-		self.running_l = self.load_frames('../graphics/Player/Color1/NoOutline/PNGSheets/running/', 'left', 9)
 		self.death_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/death/', 'right', 9)
-		self.death_l = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/death/', 'left', 9)
 		self.attack_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/attack/', 'right', 3)
-		self.attack_l = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/attack/', 'left', 3)
 
 		#movement variables
 		self.speed = 3
@@ -65,10 +61,10 @@ class Enemy(pygame.sprite.Sprite):
 					self.attack_time = current_time
 					self.frame_counter = 0
 					self.attacking = True
-		if not self.is_alive():
-			self.death()
-		else:
+		if self.is_alive():
 			self.animate()
+		else:
+			self.death()
 
 	def is_alive(self):
 		return self.health > 0
@@ -114,21 +110,12 @@ class Enemy(pygame.sprite.Sprite):
 			else:
 				#character is moving left/right
 				if self.pos_offset[0] or self.pos_offset[1]:
-
-					if self.direction == 'right':
-						self.image = self.running_r[self.frame_counter]
-					else:
-						self.image = self.running_l[self.frame_counter]
+					self.image = pygame.transform.flip(self.running_r[self.frame_counter], self.direction == 'left', False)
 				#character is idle
 				else:
-					if self.direction == 'right':
-						self.image = self.idle_r[self.frame_counter]
-					else:
-						self.image = self.idle_l[self.frame_counter]
-				if self.frame_counter == 9:
-						self.frame_counter = 0
-				else:
-					self.frame_counter += 1
+					self.image = pygame.transform.flip(self.idle_r[self.frame_counter], self.direction == 'left', False)
+				self.frame_counter += 1
+				self.frame_counter %= 10	#there are 10 animation frames
 
 			#update time of last time animation frame was played
 			self.time_of_last_animation_frame = current_time
@@ -147,10 +134,7 @@ class Enemy(pygame.sprite.Sprite):
 			self.frame_counter = 0
 	
 	def attack_animation(self):
-		if self.direction == 'right':
-			self.image = self.attack_r[self.frame_counter]
-		else:
-			self.image = self.attack_l[self.frame_counter]
+		self.image = pygame.transform.flip(self.attack_r[self.frame_counter], self.direction == 'left', False)
 		self.frame_counter += 1
 
 		if self.frame_counter == 2:
@@ -172,11 +156,7 @@ class Enemy(pygame.sprite.Sprite):
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.frame_counter < 10):
 			self.time_of_last_animation_frame = current_time
 
-			if self.direction == 'right':
-				self.image = self.death_r[self.frame_counter]
-			else:
-				self.image = self.death_l[self.frame_counter]
-			self.frame_counter += 1
+			self.image = pygame.transform.flip(self.death_r[self.frame_counter], self.direction == 'left', False)
 		
 		if self.frame_counter > 9:
 			self.has_death_animation_played = True

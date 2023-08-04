@@ -13,6 +13,12 @@ class Player(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect(topleft = pos)
 		self.hitbox = self.rect.inflate(-30,-20) #changes sprite's hitbox to allow sprites to overlap a bit
 
+		#load animation frames
+		self.running_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/running/', 9)
+		self.idle_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/idle/', 9)
+		self.attack_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/attack/', 3)
+		self.death_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/death/', 9)
+
 		#Player movement variables
 		self.pos_offset = [0, 0]
 		self.speed = 7
@@ -42,6 +48,12 @@ class Player(pygame.sprite.Sprite):
 		#combat variables
 		self.enemies = enemies
 		self.health = 5
+	
+	def load_frames(self, path, nr_of_frames):
+		frame_list = []
+		for x in range(nr_of_frames + 1):
+			frame_list.append(pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2))
+		return frame_list
 
 	def update(self):
 		if self.is_alive():
@@ -65,10 +77,10 @@ class Player(pygame.sprite.Sprite):
 		#check for horizontal movement
 		if keys[pygame.K_LEFT] or keys[pygame.K_a]:
 			self.pos_offset[0] = -1
-			self.direction = "left"
+			self.direction = 'left'
 		if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
 			self.pos_offset[0] += 1
-			self.direction = "right"
+			self.direction = 'right'
 		#check for vertical movement
 		if keys[pygame.K_UP] or keys[pygame.K_w]:
 			self.pos_offset[1] = -1
@@ -114,27 +126,23 @@ class Player(pygame.sprite.Sprite):
 			else:
 				#character is moving left/right
 				if self.pos_offset[0] or self.pos_offset[1]:
-					self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/NoOutline/PNGSheets/running/' + self.direction + '_' + str(self.counter) + '.png'), 2)
+					self.image = pygame.transform.flip(self.running_r[self.counter], self.direction == 'left', False)
 				#character is idle
 				else:
-					self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/idle/' + self.direction + '_' + str(self.counter) + '.png'), 2)
-					
-				if self.counter == 9:
-						self.counter = 0
-				else:
-					self.counter += 1
+					self.image = pygame.transform.flip(self.idle_r[self.counter], self.direction == 'left', False)
+				self.counter = (self.counter + 1) % 10	#each animation has 10 frames
 
 			#update time of last time animation frame was played
 			self.time_of_last_animation_frame = current_time
 	
 	def attack_animation(self):
-		self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/attack/' + self.attack_direction + '_' + str(self.counter) + '.png'), 2)
+		self.image = pygame.transform.flip(self.attack_r[self.counter], self.attack_direction == 'left', False)
 		self.counter += 1
 
 		if self.counter == 1:
 			self.attack()
 		
-		if self.counter >= 3:
+		if self.counter == 3:
 			self.attacking = False
 			self.counter = 0
 
@@ -165,4 +173,5 @@ class Player(pygame.sprite.Sprite):
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown:
 			self.time_of_last_animation_frame = current_time
 			self.image = pygame.transform.scale_by(pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/death/' + self.direction + '_' + str(self.counter) + '.png'), 2)
+			#self.image = pygame.transform.flip(self.death_r[self.counter], self.direction == 'left', False)
 			self.counter += 1
