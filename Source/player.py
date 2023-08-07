@@ -18,6 +18,7 @@ class Player(pygame.sprite.Sprite):
 		self.idle_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/idle/', 9)
 		self.attack_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/attack/', 3)
 		self.death_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/death/', 9)
+		self.roll_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/roll/', 11)
 
 		#Player movement variables
 		self.pos_offset = [0, 0]
@@ -28,6 +29,7 @@ class Player(pygame.sprite.Sprite):
 		self.direction = "right"
 		self.counter = 0	#counter will count up to 9
 		self.animation_cooldown = 60
+		self.roll_animation_cooldown = 40
 		self.time_of_last_animation_frame = pygame.time.get_ticks()
 
 		#Player attack variables
@@ -47,12 +49,21 @@ class Player(pygame.sprite.Sprite):
 
 		#combat variables
 		self.enemies = enemies
+		self.roll_speed = 3
+		self.is_rolling = False
+		self.roll_time = 0
+		self.roll_cooldown = 1000
 	
 	def load_frames(self, path, max_frame_num):
 		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num+1)]
 
 	def update(self):
-		if self.is_alive():
+		if self.is_rolling:
+			self.hitbox = self.rect.inflate(-30,-20)
+			self.check_collision()
+			self.roll()
+			self.move_player()
+		elif self.is_alive():
 			self.get_mvmt()
 			self.check_collision()
 			self.animate()
@@ -70,6 +81,15 @@ class Player(pygame.sprite.Sprite):
 		self.pos_offset = [0, 0]
 		keys = pygame.key.get_pressed()
 		mouse_buttons = pygame.mouse.get_pressed() #checks for mouse input
+		#check if player is rolling
+		if keys[pygame.K_SPACE]:
+			current_time = pygame.time.get_ticks()
+			if self.is_rolling == False and (current_time - self.roll_time > self.roll_cooldown):
+				self.is_rolling = True
+				self.roll_time = current_time
+				self.speed += self.roll_speed
+				self.counter = 0
+				self.attacking = False 	#don't want to queue an attack after rolling
 		#check for horizontal movement
 		if keys[pygame.K_LEFT] or keys[pygame.K_a]:
 			self.pos_offset[0] = -1
@@ -126,7 +146,7 @@ class Player(pygame.sprite.Sprite):
 				#character is idle
 				else:
 					self.image = pygame.transform.flip(self.idle_r[self.counter], self.direction == 'left', False)
-				self.counter = (self.counter + 1) % 10	#each animation has 10 frames
+				self.counter = (self.counter + 1) % 10	#these animations have 10 frames
 
 			#update time of last time animation frame was played
 			self.time_of_last_animation_frame = current_time
@@ -167,3 +187,15 @@ class Player(pygame.sprite.Sprite):
 			self.time_of_last_animation_frame = current_time
 			self.image = pygame.transform.flip(self.death_r[self.counter], self.direction == 'left', False)
 			self.counter += 1
+
+	def roll(self):
+		current_time = pygame.time.get_ticks()
+		if (current_time - self.time_of_last_animation_frame) > self.roll_animation_cooldown:
+			self.time_of_last_animation_frame = current_time
+			self.image = pygame.transform.flip(self.roll_r[self.counter], self.direction == 'left', False)
+			self.counter += 1
+		
+		if self.counter > 11:
+			self.counter = 0
+			self.is_rolling = False
+			self.speed -= self.roll_speed
