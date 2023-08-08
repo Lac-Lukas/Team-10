@@ -176,7 +176,8 @@ class Player(pygame.sprite.Sprite):
 					enemy.take_damage(self.attack_dmg)
 	
 	def take_damage(self, damage):
-		self.currentHealth -= damage
+		if not self.is_rolling:
+			self.currentHealth -= damage
 
 		if not self.is_alive():
 			self.counter = 0

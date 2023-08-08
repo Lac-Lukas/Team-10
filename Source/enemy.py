@@ -12,10 +12,10 @@ class Enemy(pygame.sprite.Sprite):
 		self.hitbox = self.rect.inflate(0,-25)
 
 		#load animation frames
-		self.idle_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/idle/', 9)
-		self.running_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/running/', 9)
-		self.death_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/death/', 9)
-		self.attack_r = self.load_frames('../graphics/Player/Color1/Outline/PNGSheets/attack/', 3)
+		self.idle_r = self.load_frames('../graphics/Enemies/Minotaur/idle/', 4)
+		self.running_r = self.load_frames('../graphics/Enemies/Minotaur/running/', 7)
+		self.death_r = self.load_frames('../graphics/Enemies/Minotaur/death/', 5)
+		self.attack_r = self.load_frames('../graphics/Enemies/Minotaur/attack/', 8)
 
 		#movement variables
 		self.speed = 3
@@ -28,6 +28,10 @@ class Enemy(pygame.sprite.Sprite):
 		self.frame_counter = 0
 		self.animation_cooldown = 60
 		self.time_of_last_animation_frame = pygame.time.get_ticks()
+		self.idle_frame_counter = 0
+		self.running_frame_counter = 0
+		self.death_frame_counter = 0
+		self.attack_frame_counter = 0
 
 		#combat variables
 		self.health = 3
@@ -56,7 +60,7 @@ class Enemy(pygame.sprite.Sprite):
 				current_time = pygame.time.get_ticks()
 				if not self.attacking and (current_time - self.attack_time > self.attack_cooldown):
 					self.attack_time = current_time
-					self.frame_counter = 0
+					self.attack_frame_counter = 0
 					self.attacking = True
 		if self.is_alive():
 			self.animate()
@@ -107,12 +111,15 @@ class Enemy(pygame.sprite.Sprite):
 			else:
 				#character is moving left/right
 				if self.pos_offset[0] or self.pos_offset[1]:
-					self.image = pygame.transform.flip(self.running_r[self.frame_counter], self.direction == 'left', False)
+					self.image = pygame.transform.flip(self.running_r[self.running_frame_counter], self.direction == 'left', False)
+					self.running_frame_counter = (self.running_frame_counter + 1) % 8
+					
 				#character is idle
 				else:
-					self.image = pygame.transform.flip(self.idle_r[self.frame_counter], self.direction == 'left', False)
-				self.frame_counter += 1
-				self.frame_counter %= 10	#there are 10 animation frames
+					self.image = pygame.transform.flip(self.idle_r[self.idle_frame_counter], self.direction == 'left', False)
+					self.idle_frame_counter = (self.idle_frame_counter + 1) % 5
+				# self.frame_counter += 1
+				# self.frame_counter %= 10	#there are 10 animation frames
 
 			#update time of last time animation frame was played
 			self.time_of_last_animation_frame = current_time
@@ -132,15 +139,15 @@ class Enemy(pygame.sprite.Sprite):
 			self.frame_counter = 0
 	
 	def attack_animation(self):
-		self.image = pygame.transform.flip(self.attack_r[self.frame_counter], self.direction == 'left', False)
-		self.frame_counter += 1
+		self.image = pygame.transform.flip(self.attack_r[self.attack_frame_counter], self.direction == 'left', False)
+		self.attack_frame_counter += 1
 
-		if self.frame_counter == 1:
+		if self.attack_frame_counter == 1:
 			self.attack()
 		
-		if self.frame_counter == 3:
+		if self.attack_frame_counter == 8:
 			self.attacking = False
-			self.frame_counter = 0
+			self.attack_frame_counter = 0
 
 	def attack(self):
 		self.player_obj.take_damage(self.attack_dmg)
@@ -151,10 +158,10 @@ class Enemy(pygame.sprite.Sprite):
 	
 	def death(self):
 		current_time = pygame.time.get_ticks()
-		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.frame_counter < 10):
+		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.death_frame_counter < 5):
 			self.time_of_last_animation_frame = current_time
-			self.image = pygame.transform.flip(self.death_r[self.frame_counter], self.direction == 'left', False)
-			self.frame_counter += 1
+			self.image = pygame.transform.flip(self.death_r[self.death_frame_counter], self.direction == 'left', False)
+			self.death_frame_counter += 1
 		
-		if self.frame_counter > 9:
+		if self.death_frame_counter > 5:
 			self.has_death_animation_played = True
