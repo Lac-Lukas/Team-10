@@ -51,8 +51,8 @@ class Level:
 				# 	Enemy((x,y), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
 				# 	self.player = Player((x,y),[self.visible_sprites], self.obstacle_sprites)
 		self.player = Player((2500,1500),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites)
-		Enemy((3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy((3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Minotaur", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Skeleton", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
 
 	def run(self):
 		# update and draw the game
@@ -60,7 +60,7 @@ class Level:
 		self.visible_sprites.update()
 		#self.remove_eliminated_enemies(self.enemy_sprites)
 		self.ui.display(self.player)
-	
+
 	def remove_eliminated_enemies(self, enemy_sprites):
 		for enemy in enemy_sprites:
 			if enemy.health <= 0 and enemy.has_death_animation_played:

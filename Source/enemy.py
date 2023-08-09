@@ -1,24 +1,31 @@
 import pygame
 from pygame.locals import *
 from settings import *
+from enemy_stats import *
 
 NORMALIZED_MVMT = 0.707107
 
 class Enemy(pygame.sprite.Sprite):
-	def __init__(self,pos,groups, obstacles, player):
+	def __init__(self, type, pos, groups, obstacles, player):
 		super().__init__(groups)
-		self.image = pygame.image.load('../graphics/Player/Color1/Outline/PNGSheets/idle/right_0.png')
-		self.rect = self.image.get_rect(topleft = pos)
+		#determine enemy type
+		self.characteristics = Enemies_dict[type]
+
+		#load sprites if necessary
+		if self.characteristics["idle_frames"] == []:
+			path = GRAPHICS_PATH + type + '/'
+			self.characteristics["idle_frames"] = self.load_frames(path + 'idle/', self.characteristics["num_idle_frames"])
+			self.characteristics["running_frames"] = self.load_frames(path + 'running/', self.characteristics["num_running_frames"])
+			self.characteristics["death_frames"] = self.load_frames(path + 'death/', self.characteristics["num_death_frames"])
+			self.characteristics["attack_frames"] = self.load_frames(path + 'attack/', self.characteristics["num_attack_frames"])
+
+		#create enemy
+		self.image = self.characteristics["idle_frames"][0]
+		self.rect = Rect(pos, (50, 100))
 		self.hitbox = self.rect.inflate(0,-25)
 
-		#load animation frames
-		self.idle_r = self.load_frames('../graphics/Enemies/Minotaur/idle/', 4)
-		self.running_r = self.load_frames('../graphics/Enemies/Minotaur/running/', 7)
-		self.death_r = self.load_frames('../graphics/Enemies/Minotaur/death/', 5)
-		self.attack_r = self.load_frames('../graphics/Enemies/Minotaur/attack/', 8)
-
 		#movement variables
-		self.speed = 3
+		self.speed = self.characteristics["mvmt_speed"]
 		self.pos_offset = [0, 0]
 		self.player_pos = player.rect
 		self.obstacles = obstacles
@@ -34,23 +41,27 @@ class Enemy(pygame.sprite.Sprite):
 		self.attack_frame_counter = 0
 
 		#combat variables
-		self.health = 3
-		self.attack_dmg = 10
-		self.aggro_dist = 300
-		self.attack_dist = 100
+		self.health = self.characteristics["max_health"]
+		self.attack_dmg = self.characteristics["attack_dmg"]
+		self.aggro_dist = self.characteristics["aggro_dist"]
+		self.attack_dist = self.characteristics["attack_dist"]
 		self.attacking = False
-		self.attack_cooldown = 600
+		self.attack_cooldown = self.characteristics["attack_cooldown"]
 		self.attack_time = 0
 		self.player_obj = player
+		self.mask = pygame.mask.from_surface(self.image)
 
 		#indication when enemy can be deleted
 		self.has_death_animation_played = False
 
 	def load_frames(self, path, max_frame_num):
-		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num + 1)]
+		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num)]
 
 	def update(self):
 		if self.player_obj.is_alive() and self.is_alive():
+			# self.move_temp()
+			# self.check_collision()
+			# self.move() 
 			self.pos_offset = [0, 0]
 			if self.within_range(self.aggro_dist):
 				self.move_towards_player()
@@ -111,15 +122,13 @@ class Enemy(pygame.sprite.Sprite):
 			else:
 				#character is moving left/right
 				if self.pos_offset[0] or self.pos_offset[1]:
-					self.image = pygame.transform.flip(self.running_r[self.running_frame_counter], self.direction == 'left', False)
-					self.running_frame_counter = (self.running_frame_counter + 1) % 8
+					self.image = pygame.transform.flip(self.characteristics["running_frames"][self.running_frame_counter], self.direction == 'left', False)
+					self.running_frame_counter = (self.running_frame_counter + 1) % self.characteristics["num_running_frames"]
 					
 				#character is idle
 				else:
-					self.image = pygame.transform.flip(self.idle_r[self.idle_frame_counter], self.direction == 'left', False)
-					self.idle_frame_counter = (self.idle_frame_counter + 1) % 5
-				# self.frame_counter += 1
-				# self.frame_counter %= 10	#there are 10 animation frames
+					self.image = pygame.transform.flip(self.characteristics["idle_frames"][self.idle_frame_counter], self.direction == 'left', False)
+					self.idle_frame_counter = (self.idle_frame_counter + 1) % self.characteristics["num_idle_frames"]
 
 			#update time of last time animation frame was played
 			self.time_of_last_animation_frame = current_time
@@ -136,10 +145,10 @@ class Enemy(pygame.sprite.Sprite):
 		self.health -= damage
 
 		if self.health <= 0  and was_alive:
-			self.frame_counter = 0
+			self.death_frame_counter = 0
 	
 	def attack_animation(self):
-		self.image = pygame.transform.flip(self.attack_r[self.attack_frame_counter], self.direction == 'left', False)
+		self.image = pygame.transform.flip(self.characteristics["attack_frames"][self.attack_frame_counter], self.direction == 'left', False)
 		self.attack_frame_counter += 1
 
 		if self.attack_frame_counter == 1:
@@ -150,7 +159,16 @@ class Enemy(pygame.sprite.Sprite):
 			self.attack_frame_counter = 0
 
 	def attack(self):
-		self.player_obj.take_damage(self.attack_dmg)
+		hurtbox = self.hitbox[:]
+		hurtbox[2] = 90
+		hurtbox[3] = 86
+		if self.direction == 'right':
+			hurtbox[0] += 35
+		else:
+			hurtbox[0] -= 95
+		
+		if pygame.Rect.colliderect(self.player_obj.rect, hurtbox):
+			self.player_obj.take_damage(self.attack_dmg)
 
 	def within_range(self, max_distance):
 		player_pos_x, player_pos_y = self.player_pos[0], self.player_pos[1]
@@ -158,10 +176,10 @@ class Enemy(pygame.sprite.Sprite):
 	
 	def death(self):
 		current_time = pygame.time.get_ticks()
-		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.death_frame_counter < 5):
+		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.death_frame_counter < self.characteristics["num_death_frames"]):
 			self.time_of_last_animation_frame = current_time
-			self.image = pygame.transform.flip(self.death_r[self.death_frame_counter], self.direction == 'left', False)
+			self.image = pygame.transform.flip(self.characteristics["death_frames"][self.death_frame_counter], self.direction == 'left', False)
 			self.death_frame_counter += 1
 		
-		if self.death_frame_counter > 5:
+		if self.death_frame_counter >= (self.characteristics["num_death_frames"] - 1):
 			self.has_death_animation_played = True

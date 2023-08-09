@@ -167,14 +167,14 @@ class Player(pygame.sprite.Sprite):
 		hurtbox[2] = 90
 		hurtbox[3] = 86
 		if self.direction == 'right':
-			hurtbox[0] += 34
+			hurtbox[0] += 45
 		else:
-			hurtbox[0] -= 100
+			hurtbox[0] -= 95
 
 		for enemy in self.enemies:
 				if pygame.Rect.colliderect(enemy.rect, hurtbox):
 					enemy.take_damage(self.attack_dmg)
-	
+
 	def take_damage(self, damage):
 		if not self.is_rolling:
 			self.currentHealth -= damage
