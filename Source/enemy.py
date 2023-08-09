@@ -23,7 +23,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.image = self.characteristics["idle_frames"][0]
 		self.rect = pygame.Rect(pos, (50, 100))
 		self.display_surface = pygame.display.get_surface()
-		self.health_bar_rect = pygame.Rect((10,100), (300, 20))
+		self.health_bar_rect = pygame.Rect(pos, (150, 20))
 		self.hitbox = self.rect.inflate(0,-25)
 
 		#movement variables
@@ -62,9 +62,6 @@ class Enemy(pygame.sprite.Sprite):
 
 	def update(self):
 		if self.player_obj.is_alive() and self.is_alive():
-			# self.move_temp()
-			# self.check_collision()
-			# self.move() 
 			self.pos_offset = [0, 0]
 			if self.within_range(self.aggro_dist):
 				self.move_towards_player()
@@ -82,18 +79,19 @@ class Enemy(pygame.sprite.Sprite):
 			self.death()
 
 	def show_bar(self, bg_rect, color):
-		# draw bg 
-		pygame.draw.rect(self.display_surface,UI_BG_COLOR,bg_rect)
+		if self.health > 0:
+			# draw bg 
+			pygame.draw.rect(self.display_surface,UI_BG_COLOR,bg_rect)
 
-		# converting stat to pixel
-		ratio = self.health / self.characteristics["max_health"]
-		current_width = bg_rect.width * ratio
-		current_rect = bg_rect.copy()
-		current_rect.width = current_width
+			# converting stat to pixel
+			ratio = self.health / self.characteristics["max_health"]
+			current_width = bg_rect.width * ratio
+			current_rect = bg_rect.copy()
+			current_rect.width = current_width
 
-		# drawing the bar
-		pygame.draw.rect(self.display_surface,color,current_rect)
-		pygame.draw.rect(self.display_surface, BAR_BORDER_COLOR,bg_rect,3)
+			# drawing the bar
+			pygame.draw.rect(self.display_surface,color,current_rect)
+			pygame.draw.rect(self.display_surface, BAR_BORDER_COLOR,bg_rect,3)
 
 	def is_alive(self):
 		return self.health > 0
@@ -132,9 +130,8 @@ class Enemy(pygame.sprite.Sprite):
 
 	def animate(self):
 		current_time = pygame.time.get_ticks()
-		
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown:
-			self.show_bar(self.health_bar_rect, HEALTH_COLOR)
+			
 			if self.attacking:
 				self.attack_animation()
 

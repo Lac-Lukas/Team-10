@@ -56,7 +56,7 @@ class Level:
 
 	def run(self):
 		# update and draw the game
-		self.visible_sprites.custom_draw(self.player)
+		self.visible_sprites.custom_draw(self.player, self.enemy_sprites)
 		self.visible_sprites.update()
 		#self.remove_eliminated_enemies(self.enemy_sprites)
 		self.ui.display(self.player)
@@ -80,7 +80,7 @@ class YSortCameraGroup (pygame.sprite.Group):
 		self.floor_surface = pygame.image.load('../Levels/Level_0/Ground.png').convert()
 		self.floor_rect = self.floor_surface.get_rect(topleft = (0,0))
 
-	def custom_draw(self,player): #logic for the camera, overlaps sprites in the Y direction
+	def custom_draw(self,player, enemy_sprites): #logic for the camera, overlaps sprites in the Y direction
 		#center player in window
 		self.offset.x = player.rect.centerx - self.half_width
 		self.offset.y = player.rect.centery - self.half_height
@@ -93,3 +93,10 @@ class YSortCameraGroup (pygame.sprite.Group):
 		for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
 			offset_pos = sprite.rect.center - self.offset
 			self.display_surface.blit(sprite.image, (offset_pos[0] - (sprite.image.get_width() / 2), offset_pos[1] - (sprite.image.get_height() / 2)))
+
+			#draw health bar if sprite is an enemy
+			if sprite in enemy_sprites:
+				healthbar_x = offset_pos[0] - (sprite.image.get_width() / 2)
+				healthbar_y = offset_pos[1] - (sprite.image.get_height() / 2)
+				sprite.health_bar_rect = pygame.Rect((healthbar_x, healthbar_y), (150, 20))
+				sprite.show_bar(sprite.health_bar_rect, HEALTH_COLOR)
