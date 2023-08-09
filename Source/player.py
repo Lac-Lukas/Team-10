@@ -45,6 +45,7 @@ class Player(pygame.sprite.Sprite):
 		self.currentEnergy = 60
 		self.curentShield = 50
 		self.exp = 0
+		self.gold = 0
 		self.currentSpeed = 9001
 
 		#combat variables

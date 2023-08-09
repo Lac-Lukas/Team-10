@@ -21,7 +21,9 @@ class Enemy(pygame.sprite.Sprite):
 
 		#create enemy
 		self.image = self.characteristics["idle_frames"][0]
-		self.rect = Rect(pos, (50, 100))
+		self.rect = pygame.Rect(pos, (50, 100))
+		self.display_surface = pygame.display.get_surface()
+		self.health_bar_rect = pygame.Rect((10,100), (300, 20))
 		self.hitbox = self.rect.inflate(0,-25)
 
 		#movement variables
@@ -53,6 +55,7 @@ class Enemy(pygame.sprite.Sprite):
 
 		#indication when enemy can be deleted
 		self.has_death_animation_played = False
+		self.runOnce = False
 
 	def load_frames(self, path, max_frame_num):
 		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num)]
@@ -77,6 +80,20 @@ class Enemy(pygame.sprite.Sprite):
 			self.animate()
 		else:
 			self.death()
+
+	def show_bar(self, bg_rect, color):
+		# draw bg 
+		pygame.draw.rect(self.display_surface,UI_BG_COLOR,bg_rect)
+
+		# converting stat to pixel
+		ratio = self.health / self.characteristics["max_health"]
+		current_width = bg_rect.width * ratio
+		current_rect = bg_rect.copy()
+		current_rect.width = current_width
+
+		# drawing the bar
+		pygame.draw.rect(self.display_surface,color,current_rect)
+		pygame.draw.rect(self.display_surface, BAR_BORDER_COLOR,bg_rect,3)
 
 	def is_alive(self):
 		return self.health > 0
@@ -115,7 +132,9 @@ class Enemy(pygame.sprite.Sprite):
 
 	def animate(self):
 		current_time = pygame.time.get_ticks()
+		
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown:
+			self.show_bar(self.health_bar_rect, HEALTH_COLOR)
 			if self.attacking:
 				self.attack_animation()
 
@@ -176,6 +195,12 @@ class Enemy(pygame.sprite.Sprite):
 	
 	def death(self):
 		current_time = pygame.time.get_ticks()
+
+		if (self.has_death_animation_played == True & self.runOnce == False):
+			self.player_obj.gold = self.player_obj.gold + 10
+			self.player_obj.exp = self.player_obj.exp + 10	
+			self.runOnce = True
+	
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.death_frame_counter < self.characteristics["num_death_frames"]):
 			self.time_of_last_animation_frame = current_time
 			self.image = pygame.transform.flip(self.characteristics["death_frames"][self.death_frame_counter], self.direction == 'left', False)
@@ -183,3 +208,4 @@ class Enemy(pygame.sprite.Sprite):
 		
 		if self.death_frame_counter >= (self.characteristics["num_death_frames"] - 1):
 			self.has_death_animation_played = True
+					# change this later depending on strength of the enemy
