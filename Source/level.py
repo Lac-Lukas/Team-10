@@ -27,9 +27,11 @@ class Level:
 		layouts = {
 				 'boundary': import_csv_layout('../Levels/Level_0/Level_0_Boundary Layer.csv'),
 				 'Props': import_csv_layout('../Levels/Level_0/Level_0_Props.csv'),
+				 'Plants': import_csv_layout('../Levels/Level_0/Level_0_Plants.csv')
 		}
 		graphics = {
-				 'Props': import_folder('../graphics/Tilesets/Objects/Props')
+				 'Props': import_folder('../graphics/Tilesets/Objects/Props'),
+				 'Plants': import_folder('../graphics/Tilesets/Objects/Plants')
 		}
 		for style, layout in layouts.items():
 			for row_index,row in enumerate(layout):
@@ -42,14 +44,10 @@ class Level:
 						if style == 'Props':
 							surf = graphics['Props'][int(col)]
 							Tile((x,y),[self.visible_sprites, self.obstacle_sprites],'Props',surf)
-						#create objects
-				# if col == 'x':
-				# 	Tile((x,y),[self.visible_sprites,self.obstacle_sprites])
-				# if col == 'p':
-				# 	self.player = Player((x,y),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites)
-				# if col == 'e':
-				# 	Enemy((x,y), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-				# 	self.player = Player((x,y),[self.visible_sprites], self.obstacle_sprites)
+						if style == 'Plants':
+							surf = graphics['Plants'][int(col)]
+							Tile((x,y-208),[self.visible_sprites],'Plants',surf)
+
 		self.player = Player((2500,1500),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites)
 		Enemy("Skeleton", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
 		Enemy("Minotaur", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
