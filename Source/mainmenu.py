@@ -5,9 +5,11 @@ from level import Level
 
 class mainmenu:
 	def __init__(self, SCREEN):
-
+		
+		print("this is reall ybad code")
 		self.level = Level()
 		self.menuIsOn = True
+		self.BG = pygame.image.load("../graphics/background.png")
         # pygame.init()
         # self.screen = pygame.display.set_mode((WIDTH,HEIGHT)) #creates display surface and a clock
         # pygame.display.set_caption('RPG')
@@ -15,7 +17,7 @@ class mainmenu:
         # self.level = Level()
 	def run(self, SCREEN, CLOCK):
 		while self.menuIsOn == True:
-			#SCREEN.blit('../graphics/Grass.png', (0, 0))
+			SCREEN.blit(self.BG, (0, 0))
 			MENU_MOUSE_POS = pygame.mouse.get_pos()
 
 			MENU_TEXT = pygame.font.Font(UI_FONT, 100).render("MAIN MENU", True, "#b68f40")

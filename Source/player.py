@@ -33,6 +33,9 @@ class Player(pygame.sprite.Sprite):
 		self.time_of_last_animation_frame = pygame.time.get_ticks()
 
 		#Player attack variables
+		self.weapon_index = 0 #  zero is sword should change to enum later
+
+		self.can_switch_weapon = True
 		self.attack_cooldown = 400
 		self.attack_time = 0
 		self.attacking = False
@@ -111,6 +114,16 @@ class Player(pygame.sprite.Sprite):
 				self.attack_time = current_time
 				self.attack_direction = self.direction
 				self.attacking = True
+		if keys[pygame.K_q] and self.can_switch_weapon:
+			self.can_switch_weapon = False
+			self.weapon_switch_time = pygame.time.get_ticks()
+			
+			if self.weapon_index < len(list(weapon_data.keys())) - 1:
+				self.weapon_index += 1
+			else:
+				self.weapon_index = 0
+					
+			self.weapon = list(weapon_data.keys())[self.weapon_index]		
 
 	def check_collision(self):
 		test_player = Rect(self.hitbox[:])	#makes shallow copy

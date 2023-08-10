@@ -1,27 +1,27 @@
 import pygame
-from settings import * 
+from settings import *
 
 class UI:
 	def __init__(self):
-		
-		# general 
+
+		# general
 		self.display_surface = pygame.display.get_surface()
 		self.font = pygame.font.Font(UI_FONT,UI_FONT_SIZE)
 
-		# bar setup 
+		# bar setup
 		self.health_bar_rect = pygame.Rect(10,10, 300, 20)
 		self.energy_bar_rect = pygame.Rect(10,34, 150, 20)
 
-		# convert weapon dictionary
-		# self.weapon_graphics = []
-		# for weapon in weapon_data.values():
-		# 	path = weapon['graphic']
-		# 	weapon = pygame.image.load(path).convert_alpha()
-		# 	self.weapon_graphics.append(weapon)
+		#convert weapon dictionary
+		self.weapon_graphics = []
+		for weapon in weapon_data.values():
+			path = weapon['graphic']
+			weapon = pygame.image.load(path).convert_alpha()
+			self.weapon_graphics.append(weapon)
 
 
 	def show_bar(self,current,max_amount,bg_rect,color):
-		# draw bg 
+		# draw bg
 		pygame.draw.rect(self.display_surface,UI_BG_COLOR,bg_rect)
 
 		# converting stat to pixel
@@ -63,12 +63,12 @@ class UI:
 			pygame.draw.rect(self.display_surface, BAR_BORDER_COLOR,bg_rect,3)
 		return bg_rect
 
-	# def weapon_overlay(self,weapon_index,has_switched):
-	# 	bg_rect = self.selection_box(10,630,has_switched)
-	# 	weapon_surf = self.weapon_graphics[weapon_index]
-	# 	weapon_rect = weapon_surf.get_rect(center = bg_rect.center)
+	def weapon_overlay(self,weapon_index,has_switched):
+		bg_rect = self.selection_box(10,630,has_switched)
+		weapon_surf = self.weapon_graphics[weapon_index]
+		weapon_rect = weapon_surf.get_rect(center = bg_rect.center)
 
-	# 	self.display_surface.blit(weapon_surf,weapon_rect)
+		self.display_surface.blit(weapon_surf,weapon_rect)
 
 	def display(self,player):
 		self.show_bar(player.currentHealth, player.maxStats['maxHealth'],self.health_bar_rect,HEALTH_COLOR)
@@ -77,5 +77,5 @@ class UI:
 		self.show_exp(player.exp)
 		self.show_gold(player.gold)
 
-		# self.weapon_overlay(player.weapon_index,not player.can_switch_weapon)
+		self.weapon_overlay(player.weapon_index, not player.can_switch_weapon)
 		# self.selection_box(80,635) # magic
