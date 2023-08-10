@@ -9,7 +9,8 @@ class Enemy(pygame.sprite.Sprite):
 	def __init__(self, type, pos, groups, obstacles, player):
 		super().__init__(groups)
 		#determine enemy type
-		self.characteristics = Enemies_dict[type]
+		self.type = type
+		self.characteristics = Enemies_dict[self.type]
 
 		#load sprites if necessary
 		if self.characteristics["idle_frames"] == []:
@@ -23,7 +24,6 @@ class Enemy(pygame.sprite.Sprite):
 		self.image = self.characteristics["idle_frames"][0]
 		self.rect = pygame.Rect(pos, (50, 100))
 		self.display_surface = pygame.display.get_surface()
-		self.health_bar_rect = pygame.Rect(pos, (150, 20))
 		self.hitbox = self.rect.inflate(0,-25)
 
 		#movement variables
@@ -134,13 +134,11 @@ class Enemy(pygame.sprite.Sprite):
 			
 			if self.attacking:
 				self.attack_animation()
-
 			else:
 				#character is moving left/right
 				if self.pos_offset[0] or self.pos_offset[1]:
 					self.image = pygame.transform.flip(self.characteristics["running_frames"][self.running_frame_counter], self.direction == 'left', False)
 					self.running_frame_counter = (self.running_frame_counter + 1) % self.characteristics["num_running_frames"]
-					
 				#character is idle
 				else:
 					self.image = pygame.transform.flip(self.characteristics["idle_frames"][self.idle_frame_counter], self.direction == 'left', False)
@@ -157,20 +155,16 @@ class Enemy(pygame.sprite.Sprite):
 		self.rect[1] += round(self.pos_offset[1] * self.speed)
 
 	def take_damage(self, damage):
-		was_alive = (self.health >= 1)
 		self.health -= damage
-
-		if self.health <= 0  and was_alive:
-			self.death_frame_counter = 0
 	
 	def attack_animation(self):
 		self.image = pygame.transform.flip(self.characteristics["attack_frames"][self.attack_frame_counter], self.direction == 'left', False)
 		self.attack_frame_counter += 1
 
-		if self.attack_frame_counter == 1:
+		if self.attack_frame_counter == self.characteristics["damage_frame"]:
 			self.attack()
 		
-		if self.attack_frame_counter == 8:
+		if self.attack_frame_counter == self.characteristics["num_attack_frames"]:
 			self.attacking = False
 			self.attack_frame_counter = 0
 
@@ -194,8 +188,8 @@ class Enemy(pygame.sprite.Sprite):
 		current_time = pygame.time.get_ticks()
 
 		if (self.has_death_animation_played == True & self.runOnce == False):
-			self.player_obj.gold = self.player_obj.gold + 10
-			self.player_obj.exp = self.player_obj.exp + 10	
+			self.player_obj.gold += self.characteristics["gold_drop"]
+			self.player_obj.exp += self.characteristics["xp_drop"]
 			self.runOnce = True
 	
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.death_frame_counter < self.characteristics["num_death_frames"]):
@@ -205,4 +199,3 @@ class Enemy(pygame.sprite.Sprite):
 		
 		if self.death_frame_counter >= (self.characteristics["num_death_frames"] - 1):
 			self.has_death_animation_played = True
-					# change this later depending on strength of the enemy
