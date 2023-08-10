@@ -51,10 +51,8 @@ class Level:
 				# 	Enemy((x,y), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
 				# 	self.player = Player((x,y),[self.visible_sprites], self.obstacle_sprites)
 		self.player = Player((2500,1500),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites)
-		Enemy("Skeleton", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Minotaur", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Flying Eye", (3000,1000), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Mushroom", (2700,800), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Minotaur", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Skeleton", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
 
 	def run(self):
 		# update and draw the game
@@ -88,29 +86,17 @@ class YSortCameraGroup (pygame.sprite.Group):
 		self.offset.y = player.rect.centery - self.half_height
 
 		#drawing floor
+
 		floor_offset_pos = self.floor_rect.topleft - self.offset
 		self.display_surface.blit(self.floor_surface, floor_offset_pos)
 
 		for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
 			offset_pos = sprite.rect.center - self.offset
-			x_pos = offset_pos[0] - (sprite.image.get_width() / 2)
-			y_pos = offset_pos[1] - (sprite.image.get_height() / 2)
-			self.display_surface.blit(sprite.image, (x_pos, y_pos))
+			self.display_surface.blit(sprite.image, (offset_pos[0] - (sprite.image.get_width() / 2), offset_pos[1] - (sprite.image.get_height() / 2)))
 
 			#draw health bar if sprite is an enemy
 			if sprite in enemy_sprites:
-				if sprite.type == "Minotaur":
-					sprite_offset_x = 15
-					sprite_offset_y = 10
-				elif sprite.type == "Skeleton":
-					sprite_offset_x = 85
-					sprite_offset_y = 75
-				elif sprite.type == "Flying Eye":
-					sprite_offset_x = 80
-					sprite_offset_y = 100
-				elif sprite.type == "Mushroom":
-					sprite_offset_x = 75
-					sprite_offset_y = 100
-
-				sprite.health_bar_rect = pygame.Rect((x_pos + sprite_offset_x, y_pos + sprite_offset_y), (150, 20))
+				healthbar_x = offset_pos[0] - (sprite.image.get_width() / 2) + 16
+				healthbar_y = offset_pos[1] - (sprite.image.get_height() / 2)
+				sprite.health_bar_rect = pygame.Rect((healthbar_x, healthbar_y), (150, 20))
 				sprite.show_bar(sprite.health_bar_rect, HEALTH_COLOR)

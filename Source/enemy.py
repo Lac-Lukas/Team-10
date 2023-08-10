@@ -9,8 +9,7 @@ class Enemy(pygame.sprite.Sprite):
 	def __init__(self, type, pos, groups, obstacles, player):
 		super().__init__(groups)
 		#determine enemy type
-		self.type = type
-		self.characteristics = Enemies_dict[self.type]
+		self.characteristics = Enemies_dict[type]
 
 		#load sprites if necessary
 		if self.characteristics["idle_frames"] == []:
@@ -24,6 +23,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.image = self.characteristics["idle_frames"][0]
 		self.rect = pygame.Rect(pos, (50, 100))
 		self.display_surface = pygame.display.get_surface()
+		self.health_bar_rect = pygame.Rect(pos, (150, 20))
 		self.hitbox = self.rect.inflate(0,-25)
 
 		#movement variables
@@ -167,7 +167,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.image = pygame.transform.flip(self.characteristics["attack_frames"][self.attack_frame_counter], self.direction == 'left', False)
 		self.attack_frame_counter += 1
 
-		if self.attack_frame_counter == self.characteristics["damage_frame"]:
+		if self.attack_frame_counter == 1:
 			self.attack()
 		
 		if self.attack_frame_counter == 8:
