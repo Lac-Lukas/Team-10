@@ -40,7 +40,7 @@ class Player(pygame.sprite.Sprite):
 		self.attack_time = 0
 		self.attacking = False
 		self.attack_direction = "right"
-		self.attack_dmg = 1
+		self.attack_dmg = 0.5
 		
 		# main stats for player
 		self.maxStats = {'maxHealth': 100, 'maxEnergy':60, 'maxAttack': 10, 'maxMagic': 4, 'maxSpeed': 5}
@@ -57,6 +57,7 @@ class Player(pygame.sprite.Sprite):
 		self.is_rolling = False
 		self.roll_time = 0
 		self.roll_cooldown = 1000
+		self.lag_hp_bar_length = 1
 	
 	def load_frames(self, path, max_frame_num):
 		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num+1)]
@@ -169,7 +170,7 @@ class Player(pygame.sprite.Sprite):
 		self.image = pygame.transform.flip(self.attack_r[self.counter], self.attack_direction == 'left', False)
 		self.counter += 1
 
-		if self.counter == 1:
+		if self.counter == 1 or self.counter == 2:
 			self.attack()
 		
 		if self.counter == 3:

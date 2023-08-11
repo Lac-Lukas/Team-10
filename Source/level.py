@@ -95,8 +95,8 @@ class YSortCameraGroup (pygame.sprite.Group):
 			y_pos = offset_pos[1] - (sprite.image.get_height() / 2)
 			self.display_surface.blit(sprite.image, (x_pos, y_pos))
 
-			#draw health bar if sprite is an enemy
-			if sprite in enemy_sprites:
+			#draw health bar if sprite is an enemy and sees player
+			if sprite in enemy_sprites and sprite.within_range(sprite.aggro_dist):
 				if sprite.type == "Minotaur":
 					sprite_offset_x = 15
 					sprite_offset_y = 10

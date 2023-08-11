@@ -1,4 +1,5 @@
 import pygame
+import random
 from pygame.locals import *
 from settings import *
 from enemy_stats import *
@@ -19,6 +20,7 @@ class Enemy(pygame.sprite.Sprite):
 			self.characteristics["running_frames"] = self.load_frames(path + 'running/', self.characteristics["num_running_frames"])
 			self.characteristics["death_frames"] = self.load_frames(path + 'death/', self.characteristics["num_death_frames"])
 			self.characteristics["attack_frames"] = self.load_frames(path + 'attack/', self.characteristics["num_attack_frames"])
+			self.characteristics["take_dmg_frames"] = self.load_frames(path + 'take_hit/', self.characteristics["num_take_damage_frames"])
 
 		#create enemy
 		self.image = self.characteristics["idle_frames"][0]
@@ -33,7 +35,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.obstacles = obstacles
 
 		#animation variables
-		self.direction = "right"
+		self.direction = random.choice(("left", "right"))
 		self.frame_counter = 0
 		self.animation_cooldown = 60
 		self.time_of_last_animation_frame = pygame.time.get_ticks()
@@ -41,6 +43,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.running_frame_counter = 0
 		self.death_frame_counter = 0
 		self.attack_frame_counter = 0
+		self.damage_frame_counter = 0
 
 		#combat variables
 		self.health = self.characteristics["max_health"]
@@ -51,17 +54,20 @@ class Enemy(pygame.sprite.Sprite):
 		self.attack_cooldown = self.characteristics["attack_cooldown"]
 		self.attack_time = 0
 		self.player_obj = player
-		self.mask = pygame.mask.from_surface(self.image)
+		self.taking_damage = False
+		self.lag_hp_bar_length = 1
 
 		#indication when enemy can be deleted
 		self.has_death_animation_played = False
 		self.runOnce = False
 
 	def load_frames(self, path, max_frame_num):
-		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num)]
+		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), self.characteristics["scale"]) for x in range(max_frame_num)]
 
 	def update(self):
-		if self.player_obj.is_alive() and self.is_alive():
+		if self.taking_damage and self.is_alive():
+			self.damage_animation()
+		elif self.player_obj.is_alive() and self.is_alive():
 			self.pos_offset = [0, 0]
 			if self.within_range(self.aggro_dist):
 				self.move_towards_player()
@@ -79,7 +85,7 @@ class Enemy(pygame.sprite.Sprite):
 			self.death()
 
 	def show_bar(self, bg_rect, color):
-		if self.health > 0:
+		if self.lag_hp_bar_length > 0:
 			# draw bg 
 			pygame.draw.rect(self.display_surface,UI_BG_COLOR,bg_rect)
 
@@ -89,9 +95,21 @@ class Enemy(pygame.sprite.Sprite):
 			current_rect = bg_rect.copy()
 			current_rect.width = current_width
 
+			#draw white bar that lags behind
+			if ratio < self.lag_hp_bar_length:
+				if ratio == 0:
+					self.lag_hp_bar_length -= 0.04
+				else:
+					self.lag_hp_bar_length -= 0.02
+
+				lag_bar = bg_rect.copy()
+				lag_bar.width *= self.lag_hp_bar_length
+				pygame.draw.rect(self.display_surface, 'white', lag_bar)
+
 			# drawing the bar
 			pygame.draw.rect(self.display_surface,color,current_rect)
 			pygame.draw.rect(self.display_surface, BAR_BORDER_COLOR,bg_rect,3)
+
 
 	def is_alive(self):
 		return self.health > 0
@@ -155,6 +173,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.rect[1] += round(self.pos_offset[1] * self.speed)
 
 	def take_damage(self, damage):
+		self.taking_damage = True
 		self.health -= damage
 	
 	def attack_animation(self):
@@ -199,3 +218,14 @@ class Enemy(pygame.sprite.Sprite):
 		
 		if self.death_frame_counter >= (self.characteristics["num_death_frames"] - 1):
 			self.has_death_animation_played = True
+
+	def damage_animation(self):
+		current_time = pygame.time.get_ticks()
+		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown:
+			self.time_of_last_animation_frame = current_time
+			self.image = pygame.transform.flip(self.characteristics["take_dmg_frames"][self.damage_frame_counter], self.direction == 'left', False)
+			self.damage_frame_counter += 1
+		
+		if self.damage_frame_counter == (self.characteristics["num_take_damage_frames"] - 1):
+			self.damage_frame_counter = 0
+			self.taking_damage = False
