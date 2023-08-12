@@ -3,7 +3,7 @@ GRAPHICS_PATH = "../graphics/Enemies/"
 
 Minotaur_dict = {
 	#enemy stats
-	"max_health" : 10,
+	"max_health" : 15,
 	"attack_dmg" : 15,
 	"attack_dist" : 100,
 	"attack_cooldown" : 600,
@@ -22,7 +22,7 @@ Minotaur_dict = {
 	"num_running_frames" : 8,
 	"num_death_frames" : 6,
 	"num_attack_frames" : 9,
-    "num_take_damage_frames" : 3,
+    "num_take_damage_frames" : 2,
 	"scale" : 2
 }
 

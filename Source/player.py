@@ -3,6 +3,8 @@ from pygame.locals import *
 from settings import *
 
 NORMALIZED_MVMT = 0.707107
+ATTACK_ENERGY_COST = 5
+ROLL_ENERGY_COST = 15
 
 class Player(pygame.sprite.Sprite):
 	def __init__(self,pos,groups, obstacles, enemies):
@@ -43,9 +45,9 @@ class Player(pygame.sprite.Sprite):
 		self.attack_dmg = 0.5
 		
 		# main stats for player
-		self.maxStats = {'maxHealth': 100, 'maxEnergy':60, 'maxAttack': 10, 'maxMagic': 4, 'maxSpeed': 5}
-		self.currentHealth = 100
-		self.currentEnergy = 60
+		self.maxStats = {'maxHealth': 100, 'maxEnergy':80, 'maxAttack': 10, 'maxMagic': 4, 'maxSpeed': 5}
+		self.currentHealth = self.maxStats["maxHealth"]
+		self.currentEnergy = self.maxStats["maxEnergy"]
 		self.curentShield = 50
 		self.exp = 0
 		self.gold = 0
@@ -53,11 +55,11 @@ class Player(pygame.sprite.Sprite):
 
 		#combat variables
 		self.enemies = enemies
-		self.roll_speed = 3
+		self.roll_speed = 4
 		self.is_rolling = False
 		self.roll_time = 0
 		self.roll_cooldown = 1000
-		self.lag_hp_bar_length = 1
+		self.energy_recovery_rate = 1
 	
 	def load_frames(self, path, max_frame_num):
 		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num+1)]
@@ -88,10 +90,9 @@ class Player(pygame.sprite.Sprite):
 		mouse_buttons = pygame.mouse.get_pressed() #checks for mouse input
 		#check if player is rolling
 		if keys[pygame.K_SPACE]:
-			current_time = pygame.time.get_ticks()
-			if self.is_rolling == False and (current_time - self.roll_time > self.roll_cooldown):
+			if self.is_rolling == False and (self.currentEnergy >= ROLL_ENERGY_COST):
+				self.currentEnergy -= ROLL_ENERGY_COST
 				self.is_rolling = True
-				self.roll_time = current_time
 				self.speed += self.roll_speed
 				self.counter = 0
 				self.attacking = False 	#don't want to queue an attack after rolling
@@ -110,7 +111,8 @@ class Player(pygame.sprite.Sprite):
 		#check if player is attacking
 		if mouse_buttons[0]:
 			current_time = pygame.time.get_ticks()
-			if not self.attacking and (current_time - self.attack_time > self.attack_cooldown):
+			if not self.attacking and (current_time - self.attack_time > self.attack_cooldown) and self.currentEnergy >= ATTACK_ENERGY_COST:
+				self.currentEnergy -= ATTACK_ENERGY_COST
 				self.counter = 0
 				self.attack_time = current_time
 				self.attack_direction = self.direction
@@ -156,10 +158,15 @@ class Player(pygame.sprite.Sprite):
 
 			else:
 				#character is moving left/right
+				if self.currentEnergy < self.maxStats["maxEnergy"]:
+						self.currentEnergy += (self.energy_recovery_rate / 5)
+
 				if self.pos_offset[0] or self.pos_offset[1]:
 					self.image = pygame.transform.flip(self.running_r[self.counter], self.direction == 'left', False)
 				#character is idle
 				else:
+					if self.currentEnergy < self.maxStats["maxEnergy"]:
+						self.currentEnergy += self.energy_recovery_rate
 					self.image = pygame.transform.flip(self.idle_r[self.counter], self.direction == 'left', False)
 				self.counter = (self.counter + 1) % 10	#these animations have 10 frames
 

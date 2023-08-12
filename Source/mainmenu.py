@@ -6,7 +6,6 @@ from level import Level
 class mainmenu:
 	def __init__(self, SCREEN):
 		
-		print("this is reall ybad code")
 		self.level = Level()
 		self.menuIsOn = True
 		self.BG = pygame.image.load("../graphics/background.png")
