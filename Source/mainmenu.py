@@ -5,11 +5,9 @@ from level import Level
 
 class mainmenu:
 	def __init__(self, SCREEN):
-		
-		print("this is reall ybad code")
 		self.level = Level()
 		self.menuIsOn = True
-		self.BG = pygame.image.load("../graphics/background.png")
+		self.BG = pygame.image.load("../Levels/Level_0/Ground.png")
         # pygame.init()
         # self.screen = pygame.display.set_mode((WIDTH,HEIGHT)) #creates display surface and a clock
         # pygame.display.set_caption('RPG')

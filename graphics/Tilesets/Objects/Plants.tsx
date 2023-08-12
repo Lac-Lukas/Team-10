@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.1" name="Plants" tilewidth="1" tileheight="1" tilecount="0" columns="0"/>
+<tileset version="1.10" tiledversion="1.10.1" name="Plants" tilewidth="224" tileheight="272" tilecount="1" columns="0">
+ <grid orientation="orthogonal" width="1" height="1"/>
+ <tile id="0">
+  <image width="224" height="272" source="Plants/Tree.png"/>
+ </tile>
+</tileset>
