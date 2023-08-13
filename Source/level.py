@@ -49,10 +49,11 @@ class Level:
 							Tile((x,y-208),[self.visible_sprites],'Plants',surf)
 
 		self.player = Player((2500,1500),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites)
-		Enemy("Skeleton", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Minotaur", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Flying Eye", (3000,1000), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Mushroom", (2700,800), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		# Enemy("Skeleton", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		# Enemy("Minotaur", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		# Enemy("Flying Eye", (3000,1000), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		# Enemy("Mushroom", (2700,800), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Minotaur", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
 
 	def run(self):
 		# update and draw the game
@@ -98,8 +99,8 @@ class YSortCameraGroup (pygame.sprite.Group):
 			#draw health bar if sprite is an enemy and sees player
 			if sprite in enemy_sprites and sprite.within_range(sprite.aggro_dist):
 				if sprite.type == "Minotaur":
-					sprite_offset_x = 15
-					sprite_offset_y = 10
+					sprite_offset_x = 60
+					sprite_offset_y = 40
 				elif sprite.type == "Skeleton":
 					sprite_offset_x = 85
 					sprite_offset_y = 75

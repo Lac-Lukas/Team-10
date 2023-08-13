@@ -58,8 +58,14 @@ class Player(pygame.sprite.Sprite):
 		self.roll_speed = 4
 		self.is_rolling = False
 		self.roll_time = 0
-		self.roll_cooldown = 1000
 		self.energy_recovery_rate = 1
+
+		#Player sounds
+		self.is_footstep_playing = False
+		self.footsteps = pygame.mixer.Sound('../Audio/footsteps.ogg')
+		pygame.mixer.Sound.set_volume(self.footsteps, 0.7)
+		self.sword_swing = pygame.mixer.Sound('../Audio/swordswing.ogg')
+		pygame.mixer.Sound.set_volume(self.sword_swing, 0.6)
 	
 	def load_frames(self, path, max_frame_num):
 		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num+1)]
@@ -117,6 +123,7 @@ class Player(pygame.sprite.Sprite):
 				self.attack_time = current_time
 				self.attack_direction = self.direction
 				self.attacking = True
+				pygame.mixer.Sound.play(self.sword_swing)
 		if keys[pygame.K_q] and self.can_switch_weapon:
 			self.can_switch_weapon = False
 			self.weapon_switch_time = pygame.time.get_ticks()
@@ -154,6 +161,7 @@ class Player(pygame.sprite.Sprite):
 		current_time = pygame.time.get_ticks()
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown:
 			if self.attacking:
+				self.footstep_sfx(Play = False)
 				self.attack_animation()
 
 			else:
@@ -163,15 +171,26 @@ class Player(pygame.sprite.Sprite):
 
 				if self.pos_offset[0] or self.pos_offset[1]:
 					self.image = pygame.transform.flip(self.running_r[self.counter], self.direction == 'left', False)
+					if not self.is_footstep_playing:
+						self.footstep_sfx()
 				#character is idle
 				else:
+					self.footstep_sfx(Play = False)
 					if self.currentEnergy < self.maxStats["maxEnergy"]:
-						self.currentEnergy += self.energy_recovery_rate
+						self.currentEnergy = round(self.currentEnergy + self.energy_recovery_rate)
 					self.image = pygame.transform.flip(self.idle_r[self.counter], self.direction == 'left', False)
 				self.counter = (self.counter + 1) % 10	#these animations have 10 frames
 
 			#update time of last time animation frame was played
 			self.time_of_last_animation_frame = current_time
+
+	def footstep_sfx(self, Play = True):
+		if Play:
+			pygame.mixer.Sound.play(self.footsteps)
+			self.is_footstep_playing = True
+		else:
+			pygame.mixer.Sound.stop(self.footsteps)
+			self.is_footstep_playing = False
 	
 	def attack_animation(self):
 		self.image = pygame.transform.flip(self.attack_r[self.counter], self.attack_direction == 'left', False)

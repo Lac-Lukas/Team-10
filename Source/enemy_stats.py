@@ -23,7 +23,7 @@ Minotaur_dict = {
 	"num_death_frames" : 6,
 	"num_attack_frames" : 9,
     "num_take_damage_frames" : 2,
-	"scale" : 2
+	"scale" : 3
 }
 
 Skeleton_dict = {
