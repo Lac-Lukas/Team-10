@@ -7,7 +7,7 @@ Minotaur_dict = {
 	"attack_dmg" : 15,
 	"attack_dist" : 100,
 	"attack_cooldown" : 600,
-	"aggro_dist" : 300,
+	"aggro_dist" : 400,
 	"mvmt_speed" : 3,
     "damage_frame" : 2,
     "xp_drop" : 20,

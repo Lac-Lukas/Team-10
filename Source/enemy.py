@@ -115,8 +115,9 @@ class Enemy(pygame.sprite.Sprite):
 		return self.health > 0
 
 	def move_towards_player(self):
-		self.hitbox = self.rect.inflate(0,-25)
+		#locate player and enemy hitbox
 		player_pos_x, player_pos_y = self.player_pos[0], self.player_pos[1]
+		self.hitbox = self.rect.inflate(0,-25)
 
 		if abs(self.rect[0] - player_pos_x) > self.speed:
 			if self.rect[0] < player_pos_x:
@@ -196,7 +197,7 @@ class Enemy(pygame.sprite.Sprite):
 		else:
 			hurtbox[0] -= 95
 		
-		if pygame.Rect.colliderect(self.player_obj.rect, hurtbox):
+		if pygame.Rect.colliderect(self.player_obj.rect, hurtbox) or pygame.Rect.colliderect(self.player_obj.rect, self.hitbox):
 			self.player_obj.take_damage(self.attack_dmg)
 
 	def within_range(self, max_distance):

@@ -222,6 +222,8 @@ class Player(pygame.sprite.Sprite):
 
 		if not self.is_alive():
 			self.counter = 0
+			#stop player running sfx if hp is 0
+			pygame.mixer.Sound.stop(self.footsteps)
 
 	def death(self):
 		current_time = pygame.time.get_ticks()

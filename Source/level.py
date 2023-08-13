@@ -23,6 +23,9 @@ class Level:
 		# add a ui
 		self.ui = UI()
 
+		#check if game has ended
+		self.game_end = False
+
 	def create_map(self):
 		layouts = {
 				 'boundary': import_csv_layout('../Levels/Level_0/Level_0_Boundary Layer.csv'),
@@ -49,24 +52,30 @@ class Level:
 							Tile((x,y-208),[self.visible_sprites],'Plants',surf)
 
 		self.player = Player((2500,1500),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites)
-		# Enemy("Skeleton", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		# Enemy("Minotaur", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		# Enemy("Flying Eye", (3000,1000), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		# Enemy("Mushroom", (2700,800), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Minotaur", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Skeleton", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Minotaur", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Flying Eye", (3000,1000), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
+		Enemy("Mushroom", (2700,800), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
 
 	def run(self):
 		# update and draw the game
 		self.visible_sprites.custom_draw(self.player, self.enemy_sprites)
 		self.visible_sprites.update()
-		#self.remove_eliminated_enemies(self.enemy_sprites)
+		#self.remove_eliminated_enemies()
+		self.check_for_lose()
 		self.ui.display(self.player)
 
-	def remove_eliminated_enemies(self, enemy_sprites):
-		for enemy in enemy_sprites:
+	def remove_eliminated_enemies(self):
+		for enemy in self.enemy_sprites:
 			if enemy.health <= 0 and enemy.has_death_animation_played:
-				enemy_sprites.remove(enemy)
+				self.enemy_sprites.remove(enemy)
 				self.visible_sprites.remove(enemy)
+
+	def check_for_lose(self):
+		if self.player.currentHealth <= 0 and self.game_end == False:
+			pygame.mixer.music.load("../Audio/death.ogg")
+			pygame.mixer.music.play()
+			self.game_end = True
 
 class YSortCameraGroup (pygame.sprite.Group):
 	def __init__(self):
@@ -81,7 +90,7 @@ class YSortCameraGroup (pygame.sprite.Group):
 		self.floor_surface = pygame.image.load('../Levels/Level_0/Ground.png').convert()
 		self.floor_rect = self.floor_surface.get_rect(topleft = (0,0))
 
-	def custom_draw(self,player, enemy_sprites): #logic for the camera, overlaps sprites in the Y direction
+	def custom_draw(self, player, enemy_sprites): #logic for the camera, overlaps sprites in the Y direction
 		#center player in window
 		self.offset.x = player.rect.centerx - self.half_width
 		self.offset.y = player.rect.centery - self.half_height
