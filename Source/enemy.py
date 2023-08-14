@@ -210,6 +210,7 @@ class Enemy(pygame.sprite.Sprite):
 		if (self.has_death_animation_played == True & self.runOnce == False):
 			self.player_obj.gold += self.characteristics["gold_drop"]
 			self.player_obj.exp += self.characteristics["xp_drop"]
+			self.player_obj.enemies_killed += 1
 			self.runOnce = True
 	
 		if (current_time - self.time_of_last_animation_frame) > self.animation_cooldown and (self.death_frame_counter < self.characteristics["num_death_frames"]):

@@ -26,7 +26,7 @@ class Game:
                     sys.exit()
 
             self.screen.fill('black')
-            self.mainmenu.run(self.screen, self.clock)
+            self.mainmenu.run(self.screen, self.clock, "RPG GAME")
             pygame.display.update()
             self.clock.tick(FPS)
 

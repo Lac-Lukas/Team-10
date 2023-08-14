@@ -52,6 +52,7 @@ class Player(pygame.sprite.Sprite):
 		self.exp = 0
 		self.gold = 0
 		self.currentSpeed = 9001
+		self.enemies_killed = 0
 
 		#combat variables
 		self.enemies = enemies

@@ -8,8 +8,8 @@ from support import *
 
 class Level:
 	def __init__(self):
-
-		# get the display surface 
+		self.reset()
+	def reset(self):
 		self.display_surface = pygame.display.get_surface()
 
 		# sprite group setup
@@ -24,7 +24,8 @@ class Level:
 		self.ui = UI()
 
 		#check if game has ended
-		self.game_end = False
+		self.game_lose = False
+		self.game_win = False
 
 	def create_map(self):
 		layouts = {
@@ -62,7 +63,9 @@ class Level:
 		self.visible_sprites.custom_draw(self.player, self.enemy_sprites)
 		self.visible_sprites.update()
 		#self.remove_eliminated_enemies()
-		self.check_for_lose()
+		self.check_for_end()
+		#print(self.player.enemies_killed)
+		#print(len(self.enemy_sprites.sprites()))
 		self.ui.display(self.player)
 
 	def remove_eliminated_enemies(self):
@@ -71,11 +74,14 @@ class Level:
 				self.enemy_sprites.remove(enemy)
 				self.visible_sprites.remove(enemy)
 
-	def check_for_lose(self):
+	def check_for_end(self):
 		if self.player.currentHealth <= 0 and self.game_end == False:
 			pygame.mixer.music.load("../Audio/death.ogg")
 			pygame.mixer.music.play()
-			self.game_end = True
+			self.game_lose = True
+		if (self.player.enemies_killed == len(self.enemy_sprites.sprites())):
+			self.game_win = True
+			
 
 class YSortCameraGroup (pygame.sprite.Group):
 	def __init__(self):
