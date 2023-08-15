@@ -61,12 +61,7 @@ class Level:
 							elif col == '3': monster_name = 'Mushroom'
 							else: monster_name = 'Skeleton'
 							Enemy(monster_name,(x,y),[self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		""" self.player = Player((3600,2400),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites) 
-		Enemy("Skeleton", (3000,1500), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Minotaur", (3000,1200), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Flying Eye", (3000,1000), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-		Enemy("Mushroom", (2700,800), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player) """ 
-
+							
 	def run(self):
 		# update and draw the game
 		self.visible_sprites.custom_draw(self.player, self.enemy_sprites)
