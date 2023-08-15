@@ -54,14 +54,14 @@ class Level:
 							surf = graphics['Plants'][int(col)]
 							Tile((x,y-208),[self.visible_sprites],'Trees',surf)
 						if style == 'Player':
-							self.player = Player((x,y),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites)
-						if style == 'Entities':
+							self.player = Player((x,y),[self.visible_sprites], self.obstacle_sprites, self.enemy_sprites) # spawns tiles for player
+						if style == 'Entities': # spawns tiles for enemies
 							if col == '1': monster_name = 'Flying Eye'
 							elif col == '2': monster_name = 'Minotaur'
 							elif col == '3': monster_name = 'Mushroom'
 							else: monster_name = 'Skeleton'
 							Enemy(monster_name,(x,y),[self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, self.player)
-							
+
 	def run(self):
 		# update and draw the game
 		self.visible_sprites.custom_draw(self.player, self.enemy_sprites)
