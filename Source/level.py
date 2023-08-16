@@ -79,7 +79,7 @@ class Level:
 				self.visible_sprites.remove(enemy)
 
 	def check_for_end(self):
-		if self.player.currentHealth <= 0 and self.game_end == False:
+		if self.player.currentHealth <= 0 and self.game_lose == False:
 			pygame.mixer.music.load("../Audio/death.ogg")
 			pygame.mixer.music.play()
 			self.game_lose = True
