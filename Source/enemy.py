@@ -21,6 +21,8 @@ class Enemy(pygame.sprite.Sprite):
 			self.characteristics["death_frames"] = self.load_frames(path + 'death/', self.characteristics["num_death_frames"])
 			self.characteristics["attack_frames"] = self.load_frames(path + 'attack/', self.characteristics["num_attack_frames"])
 			self.characteristics["take_dmg_frames"] = self.load_frames(path + 'take_hit/', self.characteristics["num_take_damage_frames"])
+			if "spin_attack" in self.characteristics:
+				self.characteristics["spin_attack"] = self.load_frames(path + 'spin/', self.characteristics["num_attack_frames"])
 
 		#create enemy
 		self.image = self.characteristics["idle_frames"][0]
@@ -56,15 +58,28 @@ class Enemy(pygame.sprite.Sprite):
 		self.player_obj = player
 		self.taking_damage = False
 		self.lag_hp_bar_length = 1
+		self.attack_key = "attack_frames"
+		self.alt_mode = False
 
 		#indication when enemy can be deleted
 		self.has_death_animation_played = False
 		self.runOnce = False
 
+		#berserk mode
+		self.bounce_counter = 0
+		self.has_bounced = False
+		self.need_rand_direction = 3
+
 	def load_frames(self, path, max_frame_num):
 		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), self.characteristics["scale"]) for x in range(max_frame_num)]
 
 	def update(self):
+		#alternate attack mode
+		# if self.alt_mode and "spin_attack" in self.characteristics:
+		# 	self.berserk_mode()
+
+		#normal mode
+		#else:
 		if self.taking_damage and self.is_alive():
 			self.damage_animation()
 		elif self.player_obj.is_alive() and self.is_alive():
@@ -176,9 +191,19 @@ class Enemy(pygame.sprite.Sprite):
 	def take_damage(self, damage):
 		self.taking_damage = True
 		self.health -= damage
+
+		if "spin_attack" in self.characteristics and (self.health <= self.characteristics["health_trigger"]):
+			#if not self.alt_mode:
+			self.aggro_dist += self.characteristics["aggro_range_gain"]
+			self.alt_mode = True
+			#self.pos_offset = self.pick_random_direction()
+			self.attack_dist = 1000
 	
 	def attack_animation(self):
-		self.image = pygame.transform.flip(self.characteristics["attack_frames"][self.attack_frame_counter], self.direction == 'left', False)
+		if "spin_attack" in self.characteristics and self.attack_frame_counter == 0:
+			self.attack_key = random.choice(("attack_frames", "spin_attack"))
+
+		self.image = pygame.transform.flip(self.characteristics[self.attack_key][self.attack_frame_counter], self.direction == 'left', False)
 		self.attack_frame_counter += 1
 
 		if self.attack_frame_counter == self.characteristics["damage_frame"]:
@@ -231,3 +256,38 @@ class Enemy(pygame.sprite.Sprite):
 		if self.damage_frame_counter == (self.characteristics["num_take_damage_frames"] - 1):
 			self.damage_frame_counter = 0
 			self.taking_damage = False
+
+	# def berserk_mode(self):
+	# 	if self.bounce_counter == self.need_rand_direction:
+	# 		self.pos_offset = self.pick_random_direction()
+	# 		self.need_rand_direction += 10
+	# 		print("RAND")
+		
+	# 	self.bounce_on_collision()
+	# 	self.hitbox = self.rect.inflate(0,-25)
+	# 	self.move()
+
+	# def pick_random_direction(self):
+	# 	return [random.choice((1, -1)) for _ in range(2)]
+	
+	# def bounce_on_collision(self):
+	# 	test_enemy = Rect(self.hitbox[:])
+	# 	self.has_bounced = False
+
+	# 	#horizontal movement
+	# 	test_enemy[0] += (self.pos_offset[0] * self.speed)
+	# 	for obstacle in self.obstacles:
+	# 		if pygame.Rect.colliderect(obstacle.rect, test_enemy):
+	# 			self.pos_offset[0] *= -1
+	# 			test_enemy[0] = 0
+	# 			self.has_bounced = True
+
+	# 	#vertical movement
+	# 	test_enemy[1] += (self.pos_offset[1] * self.speed)
+	# 	for obstacle in self.obstacles:
+	# 		if pygame.Rect.colliderect(obstacle.rect, test_enemy):
+	# 			self.pos_offset[1] *= -1
+	# 			self.has_bounced = True
+		
+	# 	if self.has_bounced:
+	# 		self.bounce_counter += 1
