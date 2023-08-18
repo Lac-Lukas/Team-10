@@ -60,6 +60,7 @@ class Player(pygame.sprite.Sprite):
 		self.is_rolling = False
 		self.roll_time = 0
 		self.energy_recovery_rate = 1
+		self.health_recovery_rate = 0
 
 		#Player sounds
 		self.is_footstep_playing = False
@@ -67,6 +68,13 @@ class Player(pygame.sprite.Sprite):
 		pygame.mixer.Sound.set_volume(self.footsteps, 0.7)
 		self.sword_swing = pygame.mixer.Sound('../Audio/swordswing.ogg')
 		pygame.mixer.Sound.set_volume(self.sword_swing, 0.6)
+
+		#level variables
+		self.level = 0
+		self.sword_level = 0
+		self.energy_regen_gain = 0.25
+		self.attack_dmg_gain = 0.25
+
 	
 	def load_frames(self, path, max_frame_num):
 		return [pygame.transform.scale_by(pygame.image.load(path + 'right_' + str(x) + '.png'), 2) for x in range(max_frame_num+1)]
@@ -84,6 +92,7 @@ class Player(pygame.sprite.Sprite):
 			self.move_player()
 		elif self.counter < 10:	#death animation only has 10 frames
 			self.death()
+		self.level_manager()
 
 	def is_alive(self):
 		return self.currentHealth > 0
@@ -179,6 +188,8 @@ class Player(pygame.sprite.Sprite):
 					self.footstep_sfx(Play = False)
 					if self.currentEnergy < self.maxStats["maxEnergy"]:
 						self.currentEnergy = round(self.currentEnergy + self.energy_recovery_rate)
+					if self.currentHealth < self.maxStats["maxHealth"]:
+						self.currentHealth += self.health_recovery_rate 
 					self.image = pygame.transform.flip(self.idle_r[self.counter], self.direction == 'left', False)
 				self.counter = (self.counter + 1) % 10	#these animations have 10 frames
 
@@ -244,3 +255,21 @@ class Player(pygame.sprite.Sprite):
 			self.counter = 0
 			self.is_rolling = False
 			self.speed -= self.roll_speed
+
+	def level_manager(self):
+		#gold increases attack damage
+		if self.sword_level == 0 and self.gold >= 50:
+			self.attack_dmg += self.attack_dmg_gain
+			self.sword_level += 1
+		elif self.sword_level == 1 and self.gold >= 100:
+			self.attack_dmg += self.attack_dmg_gain
+			self.sword_level += 1
+
+		#xp gives player more energy/health regen
+		if self.level == 0 and self.exp >= 100:
+			self.energy_recovery_rate += self.energy_regen_gain
+			self.level += 1
+		elif self.level == 1 and self.exp >= 200:
+			self.energy_recovery_rate += self.energy_regen_gain
+			self.health_recovery_rate = 0.25
+			self.level += 1

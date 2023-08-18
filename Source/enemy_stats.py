@@ -26,8 +26,9 @@ Minotaur_dict = {
 	"scale" : 3,
     #alternative attack mode
 	"spin_attack" : [],
-	"health_trigger" : 5,
-    "aggro_range_gain" : 600
+	"health_trigger" : 7,
+    "aggro_range_gain" : 600,
+    "speed_gain" : 1
 }
 
 Skeleton_dict = {
