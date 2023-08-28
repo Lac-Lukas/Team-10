@@ -1,5 +1,6 @@
 import pygame
 from settings import *
+from button import Button
 
 class UI:
 	def __init__(self):
@@ -29,7 +30,6 @@ class UI:
 		current_width = bg_rect.width * ratio
 		current_rect = bg_rect.copy()
 		current_rect.width = current_width
-
 		# drawing the bar
 		pygame.draw.rect(self.display_surface,color,current_rect)
 		pygame.draw.rect(self.display_surface, BAR_BORDER_COLOR,bg_rect,3)
@@ -70,6 +70,29 @@ class UI:
 
 		self.display_surface.blit(weapon_surf,weapon_rect)
 
+	def healthSymbolOverlay(self):
+		bg_rect = pygame.Rect(310, 5, 32, 32)
+		image = pygame.image.load('../graphics/UISymbols/HealthUIBlack.png')
+		image_rect = image.get_rect(center = bg_rect.center)
+		self.display_surface.blit(image, image_rect)
+
+	def staminaSymbolOverlay(self):
+		bg_rect = pygame.Rect(160, 29, 32, 32)
+		image = pygame.image.load('../graphics/UISymbols/stamina.png')
+		image_rect = image.get_rect(center = bg_rect.center)
+		self.display_surface.blit(image, image_rect)
+
+	def healthPotionOverlay(self, health_potion_count):
+		bg_rect = pygame.Rect(10, 590, 38, 38)
+		image = pygame.image.load('../graphics/UISymbols/Healthpotion.png')
+		image_rect = image.get_rect(center = bg_rect.center)
+		self.display_surface.blit(image, image_rect)
+
+		text = self.font.render(health_potion_count, True, "#d7fcd4")
+		#self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
+		#self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
+		self.display_surface.blit(text, image_rect)
+
 	def display(self,player):
 		self.show_bar(player.currentHealth, player.maxStats['maxHealth'],self.health_bar_rect,HEALTH_COLOR)
 		self.show_bar(player.currentEnergy, player.maxStats['maxEnergy'],self.energy_bar_rect,ENERGY_COLOR)
@@ -78,4 +101,7 @@ class UI:
 		self.show_gold(player.gold)
 
 		self.weapon_overlay(player.weapon_index, not player.can_switch_weapon)
+		self.healthSymbolOverlay()
+		self.staminaSymbolOverlay()
+		self.healthPotionOverlay(player.health_potion_count)
 		# self.selection_box(80,635) # magic

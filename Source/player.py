@@ -61,6 +61,7 @@ class Player(pygame.sprite.Sprite):
 		self.roll_time = 0
 		self.energy_recovery_rate = 1
 		self.health_recovery_rate = 0
+		self.health_potion_count = "3"
 
 		#Player sounds
 		self.is_footstep_playing = False
@@ -143,8 +144,17 @@ class Player(pygame.sprite.Sprite):
 			else:
 				self.weapon_index = 0
 					
-			self.weapon = list(weapon_data.keys())[self.weapon_index]		
-
+			self.weapon = list(weapon_data.keys())[self.weapon_index]
+		#if keys[pygame.K_h]:
+			
+	def use_health_potion(self):
+		if(int(self.health_potion_count) > 0 and self.currentHealth < 100):
+				self.health_potion_count = str(int(self.health_potion_count) - 1)
+				print("using healthpotion")				
+				if (self.currentHealth < 50):
+					self.currentHealth += 50
+				else:
+					self.currentHealth = 100				
 	def check_collision(self):
 		test_player = Rect(self.hitbox[:])	#makes shallow copy
 
